@@ -51,7 +51,7 @@ class Player(Table):
                 if user_input == dollar_amt: #user did not enter a decimal/fraction
                     is_int = True
                 else:
-                    print("Please enter a dollar value.\n")
+                    print("Please enter a dollar value, cents cannot be used.\n")
                 
                 if dollar_amt > 0: #needs to be a positive number
                     is_pos = True 
@@ -93,23 +93,53 @@ class Bets(Player):
        
    def insufficient_funds(self):
        print(f"{self.player.name} has insufficient funds.")
+       print("To make a bet, you must enter an amount lower than your remaining bankroll.")
+       print(f"Current bankroll: {self.player.bankroll}")
+       bet = self.player.get_valid_dollar_amt()
+       return bet
        #TODO: list amounts
        #TODO: prompt player to make another bet
        
-   def pass_line(self):
+   def pass_line(self, pl_bet):
        
        ''' sets up a valid pass-line bet from the user '''
        
        #collect desired bet amount in dollars
-       print("Please enter passline bet.\n")
-       pl_bet = self.player.get_valid_dollar_amt()
+       #print("Please enter pass line bet.")
+       #pl_bet = self.player.get_valid_dollar_amt()
        
        
-       if pl_bet > self.player.bankroll: #if bet is too large
-           self.insufficient_funds()
+       #if pl_bet > self.player.bankroll: #if bet is too large
+       #    self.insufficient_funds()
            
-       else: #set the bet amount for the given player/bet
-           self.pass_line_amt = pl_bet 
+       #else: #set the bet amount for the given player/bet
+       self.pass_line_amt = pl_bet 
+       self.player.bankroll -= pl_bet
+           
+   def do_not_pass(self, dnpl_bet):
+       
+       ''' sets up a valid do not pass-line bet from the user '''
+       
+       #collect desired bet amount in dollar
+       #print("Please enter a do not pass line bet.")
+       #dnpl_bet = self.player.get_valid_dollar_amt()
+       
+       #if dnpl_bet > self.player.bankroll: #if bet is too large
+       #    self.insufficient_funds()
+           
+       #else:  #set the bet amount for the given player/bet
+       self.do_not_pass_amt = dnpl_bet
+       self.player.bankroll -= dnpl_bet
+           
+   
+   def ingest_bet(self):
+       ''' gets a valid bet amount '''
+       
+       bet = self.player.get_valid_dollar_amt()  
+       while bet > self.player.bankroll:
+           bet = self.insufficient_funds()
+       return bet    
+           
     
    def betting_turn(self):
        
@@ -118,7 +148,36 @@ class Bets(Player):
        print("Would you like to make a bet?")
        choice = self.player.get_valid_yes_no_choice()
        if choice == "yes":
-           self.pass_line()
+           #TODO: here, get bet type, ingest get valid bet number
+           print("What type of bet would you like to make?")
+           print("Options: 'pass line' , 'do not pass line'")
+           bet_choice = input().lower()
+           if bet_choice == "pass line" or bet_choice == "do not pass line":
+               bet = self.ingest_bet()
+               if bet_choice == "pass line":
+                   self.pass_line(bet)
+               else:
+                   self.do_not_pass(bet)
+           else: 
+               print("Error: Invalid bet name.")
+               self.betting_turn()
+               
+   def print_bet_made(self):
+       ''' prints the bets made and remaining bankroll '''
+       
+       if self.pass_line_amt > 0:
+           print(f"Pass line bet made: {self.pass_line_amt}")
+           
+       if self.do_not_pass_amt > 0:
+           print(f"Do not pass line bet made: {self.do_not_pass_amt}")
+           
+       if self.odds_bet_amt > 0:
+           print(f"Odds bet made: {self.odds_bet_amt}")
+           
+       print(f"Remaining balance: {self.bankroll}")    
+                           
+           
+         
        #TODO: make this available for all bet types    
            
 
@@ -135,6 +194,7 @@ def play_game():
     #TODO: have some check for active bets
     
     bet.betting_turn() # get a bet
+    '''
     if bet.pass_line_amt > 0: #we have a bet
     
         table.dice.roll() #roll the dice
@@ -148,6 +208,7 @@ def play_game():
             print("You win!")
             player.bankroll += bet.pass_line_amt
             print(f"New bankroll: {player.bankroll}")
+    '''        
             
 #%% run the game            
 play_game()  
