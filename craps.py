@@ -24,9 +24,7 @@ class Table(Dice):
         super().__init__()
         self.dice = Dice() #initializes set of dice for the table
         self.point = False # start in "come out" phase
-    
-    #TODO: how do we change the state?
-    #TODO: how do we assign/manage players?    
+  
      
 class Player(Table):  
     def __init__(self, table):
@@ -97,9 +95,22 @@ class Bets(Player):
        print(f"Current bankroll: {self.player.bankroll}")
        bet = self.player.get_valid_dollar_amt()
        return bet
-       #TODO: list amounts
-       #TODO: prompt player to make another bet
        
+   
+   def get_max_odds_bet(self, roll_number_betted):
+       
+       if roll_number_betted in [4, 10]:
+           return 3 * self.pass_line_amt
+       
+       if roll_number_betted in [5, 9]:
+           return 4 * self.pass_line_amt
+       
+       if roll_number_betted in [6, 8]:
+           return 5 * self.pass_line_amt
+       
+       return 0 
+        
+        
    def pass_line(self, pl_bet):
        
        ''' sets up a valid pass-line bet from the user '''
@@ -143,7 +154,7 @@ class Bets(Player):
     
    def betting_turn(self):
        
-       ''' prompts user to make a bet '''
+       ''' prompts user to make a pass/do not pass bet '''
        
        print("Would you like to make a bet?")
        choice = self.player.get_valid_yes_no_choice()
@@ -161,7 +172,38 @@ class Bets(Player):
            else: 
                print("Error: Invalid bet name.")
                self.betting_turn()
+   
+   def shooter(self):
+       #if we have a bet, roll the die
+       if self.pass_line_amt != 0 or self.do_not_pass_amt != 0:
+           self.player.roll()
+           roll_sum = self.player.die1_value + self.player.die2_value
+           
+           
+           if not self.player.point: #in come-out phase
+           
+               if roll_sum in [2, 3, 12]:
+                   if self.pass_line_amt > 0: #crapped out
+                       self.bet_loser()
+                   if self.do_not_pass_amt > 0 and roll_sum != 12:  
+                       self.bet_winner()
+                       
+               elif roll_sum  in [7, 11]: # pass wins, no pass loses
+                   if self.pass_line_amt > 0:
+                       self.bet_winner()
+                   if self.do_not_pass_amt >0:
+                       self.bet_loser()
+                   
+               else:
+                   self.point = roll_sum    #the number that needs to be rolled again to win 
+                   #TODO: need to reset this somewhere once round is over    
                
+   def bet_loser(self):
+       pass 
+
+   def bet_winner(self):
+       pass
+
    def print_bet_made(self):
        ''' prints the bets made and remaining bankroll '''
        
@@ -176,14 +218,42 @@ class Bets(Player):
            
        print(f"Remaining balance: {self.bankroll}")    
                            
-           
+   def print_bet_won(self):
+       pass
+   
+   def print_bet_lost(self):
+       pass
+   
+   
+   def get_valid_odds_roll_bet(self):
+       while True:
+         num_bet_on = input("What number would you like to place an odds bet on?\n Options: 4, 5, 6, 8, 9, 10")
+         try:
+             if float(num_bet_on) in [4, 5, 6, 8, 9, 10]:
+                 return int(num_bet_on)
+         except ValueError:
+             print("Please enter a numerical value.")
          
-       #TODO: make this available for all bet types    
+       
+   def odds(self):
+       if self.pass_line_amt > 0:
+           num_bet_on = self.get_valid_odds_roll_bet()
+           max_bet = min([self.get_max_odds_bet(num_bet_on), self.player.bankroll])
+           print(f"The maximum bet that can be made is {max_bet}")
+           print(f"Your current bankroll is {self.player.bankroll}")
+           odds_bet = self.ingest_bet()
+           self.odds_bet_amt = odds_bet
+           self.player.bankroll -= odds_bet
+       else:
+           print("An odds bet cannot be made right now.")
+           self.odds_bet_amt = 0
+      
            
 
 #%% Defines method that runs the game using the classes
+
+'''
 def play_game():
-    '''plays the game using the previously defined class methods/attributes '''
     
     #initialize everything we need
     table = Table()
@@ -194,7 +264,8 @@ def play_game():
     #TODO: have some check for active bets
     
     bet.betting_turn() # get a bet
-    '''
+'''
+'''
     if bet.pass_line_amt > 0: #we have a bet
     
         table.dice.roll() #roll the dice
@@ -208,13 +279,19 @@ def play_game():
             print("You win!")
             player.bankroll += bet.pass_line_amt
             print(f"New bankroll: {player.bankroll}")
-    '''        
+'''        
             
 #%% run the game            
-play_game()  
+#play_game()  
     
 #%%        
 '''Simple testing scripts held below for troubleshooting'''  
+#Test shooter
+table = Table()
+player = Player(table)
+bet = Bets(player)
+bet.betting_turn()
+bet.shooter()
       
 # Test Roll Dice
 '''
