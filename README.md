@@ -4,6 +4,17 @@ This repository is for the development of a text-based simplified craps game. Th
 ### Quick Start Guide
 To play the game, simply download and run the script craps.py. Upon running, you will be asked if you'd like to play craps. Type "yes" or "y" and press enter. Then, the game of craps will begin. 
 
+### Script To Play Game
+Included at the bottom of craps.py is the script required to set up and run the game. The classes Table, Player, and Bets need to be instantiated. Then, `betting_turn` needs to be called to begin betting and start the game. This would only need to be done if the classes in craps.py are imported separately. 
+
+`table = Table()`
+
+`player = Player(table)`
+
+`bet = Bets(player)`
+
+`bet.betting_turn()`
+
 ### Class Functionality
 The following describes the functionality of each of the individual classes used in this game. 
 #### Dice
