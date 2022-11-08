@@ -40,4 +40,20 @@ The following describes the functionality of each of the individual classes used
 
 - `ingest_bet` uses `player.get_valid_dollar_amt` to get a desired bet amount from the user. Then, if/while the bet is larger than the player's bankroll (invalid), calls `insufficient_funds` to tell the user that an error has occured and prompts them to make another bet. Finally, the method returns a positive integer bet lesser than or equal to the player's bankroll.
 
-- 
+- `betting_turn` prompts the user to make a bet if their bankroll is greater than 0. If they decide to make a bet and are in the "come out" phase, they are prompted to make a pass or do not pass bet using `pass_line` and `do_not_pass` respectively. If the user does not specify a valid "pass line" or "do not pass line" bet selection, this method is called again to prompt the user to make a valid bet. If the game is in the point phase and the user has made a pass line bet, they are given th eoption to make an odds bet using the `odds` methhod (described below). If the user decides they do not want to make a pass/no pass bet, the `payout` method is called to determine if the user would like to keep playing or end the game (described below). After any given bet, the `shooter` method is called to roll the die and evaluate payouts (described below). 
+
+- `shooter` rolls the die if there is an active pass/no pass bet. To roll the die, the user has to hit the enter key on their keyboard. The dice roll displays the resutls graphically, as previously described. Then, the payouts are evaluated using the sum of the roll and the phase of the game (either `point = False` for "come out" phase or `point = num` where num is the roll sum that caused the transition to the point phase). These payout evaluations call the following methods for winning/losing the respective bets. 
+
+- `bet_loser` is called when `shooter` classifies a lost bet and takes the parameter `bet_type`. This method calculates and saves the amount of money lost using the respective bet amount, and then resets the bet amount to 0. Finally, it calls `print_money_lost` to display the results to the player (described below). 
+
+- `bet_winner` is functionally similar to `bet_loser` but calculates the money won depending on the payout ratios (1:1, 6:5, 3:2, and 2:1 depending on the bet and point). It then calls `print_money_won` to display the results to the user (described below). 
+
+- `print_bet_made` prints the bet made and any other active bets to the user, as well as their remaining bankroll.
+
+- `print_bet_won` takes in the parameter `money_won` to print that the user won a given amount of money and their updated bankroll. 
+
+- `print_bet_lost` takes in paramter `money_lost` to print that the user lost a given amount of money and their updated bankroll. This method has the added functionality of printing a "game over" message if the player's bankroll is 0, as the game will not continue with a bankroll of 0.
+
+-  `odds` allows the user to make an odds bet given (1) their bankroll is greater than 0, (2) they made a pass line bet, (3) they did not already make the maximum odds bet for a given point value. If the user is able and wants to make an odds bet, the `ingest_bet` method is called and the `odds_bet_amt` and `player.bankroll` attributes are updated. `print_bet_made` is called to display this information to the player. If the user doesn't want to or can't make an odds bet, the `shooter` method will be called to roll the die. It is important to note that the player will be prompted to amke an odds bet after each dice roll in the point phase if they have not reached the max allowable odds bet and have money in their bankroll. 
+
+-  `payout` is called when the user has opted to not make an additional bet. If all bets are 0, then the user is prompted with a message asking them if they'd like to keep playing. If yes, they are prompted to make another bet using `betting_turn`. If not, the game is ended and the earnings of the player are calculated and displayed. If there's at least 1 non-zero bet, the bet is reconciled using the `shooter` method before payout can complete. 
