@@ -532,6 +532,7 @@ class Bets(Player):
            print("Active bets must be reconciled before cashout.")
            while self.pass_line_amt != 0 or self.do_not_pass_amt != 0:   
                self.shooter() #roll the die
+           self.payout() #give user the option to payout after debts are reconciled     
            
 
 #%% Interface to start game
