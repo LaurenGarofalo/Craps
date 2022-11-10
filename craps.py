@@ -74,10 +74,10 @@ class Player(Table):
             is_int = False
             is_pos = False
             
-            try:    
+            try:   
                 #check that a whole number was entered
                 user_input = float(dollar_amt)
-                dollar_amt = int(dollar_amt)
+                dollar_amt = int(user_input)
                 
                 if user_input == dollar_amt: #user did not enter a decimal/fraction
                     is_int = True
@@ -176,7 +176,7 @@ class Bets(Player):
        #alert user to the bet that was made
        self.print_bet_made()
            
-   def do_not_pass(self, dnpl_bet):
+   def do_not_pass(self):
        
        ''' sets up a valid do not pass-line bet from the user '''
        
@@ -249,7 +249,10 @@ class Bets(Player):
              self.odds() #give option to make an odds bet
              self.shooter() #roll the die
            
-          
+       if self.player.bankroll == 0:
+           #if we have no balance but bets to reconcile, roll the dice
+           while self.pass_line_amt != 0 or self.do_not_pass_amt != 0:
+               self.shooter()
    
    def shooter(self):
        
@@ -403,11 +406,11 @@ class Bets(Player):
        #save money won for an odds bet (depends on point value)    
        else:
            if self.player.point in [6, 8]:
-               money_won = self.odds_bet_amt * 1.2 #6 to 5
+               money_won = int(self.odds_bet_amt * 1.2) #6 to 5
            elif self.player.point in [5, 9]:
-               money_won = self.odds_bet_amt * 1.5 #3 to 2
+               money_won = int(self.odds_bet_amt * 1.5) #3 to 2
            elif self.player.point in [4, 10]:
-               money_won = self.odds_bet_amt * 2 #2 to 1
+               money_won = int(self.odds_bet_amt * 2) #2 to 1
                
            
            #correct bankroll, reset bet 
@@ -467,7 +470,7 @@ class Bets(Player):
            max_bet = min([self.get_max_odds_bet(), self.player.bankroll]) #whichever is smaller
            
            if max_bet > 0: #we have a bet that could be made
-               print(f"The maximum bet that can be made is {max_bet}")
+               print(f"The maximum bet that can be made is ${max_bet}")
                print(f"Your current bankroll is ${self.player.bankroll}")
                print("Would you like to make an odds bet?")
                
